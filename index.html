@@ -10,7 +10,6 @@
         body { 
             display: flex; justify-content: center; align-items: center; 
             height: 100vh; margin: 0; 
-            /* Arka plan senin istediğin o ferah ilk haline geri döndürüldü */
             background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%); 
         }
         
@@ -68,10 +67,18 @@
 
         /* İNCELEME EKRANI TABLOSU */
         .table-list {
-            text-align: left; margin-top: 15px; padding: 15px; background: #f8f9fa;
-            border-radius: 15px; height: 300px; overflow-y: auto; border: 2px solid #ecf0f1;
+            display: flex; justify-content: space-between; gap: 15px;
+            margin-top: 15px; padding: 15px; background: #f8f9fa;
+            border-radius: 15px; border: 2px solid #ecf0f1;
         }
-        .table-row { font-size: 22px; font-weight: bold; margin: 8px 0; padding-bottom: 5px; border-bottom: 1px dashed #ddd; }
+        .table-column {
+            flex: 1; display: flex; flex-direction: column; gap: 8px;
+        }
+        .table-row { 
+            font-size: 17px; 
+            font-weight: bold; padding-bottom: 5px; border-bottom: 1px dashed #ddd; 
+            text-align: left; white-space: nowrap;
+        }
         .row-correct { color: #27ae60; }
         .row-wrong { color: #e74c3c; }
         .row-unanswered { color: #7f8c8d; }
@@ -120,7 +127,7 @@
         <div class="sub-stats">
             <span class="stat-correct">✔ Doğru: <span id="correct-count">0</span></span>
             <span class="stat-divider">|</span>
-            <span class="stat-wrong">❌ Yanlış: <span id="wrong-count">0</span></span>
+            <span class="stat-wrong">✖ Yanlış: <span id="wrong-count">0</span></span>
         </div>
         
         <button class="btn-inspect" onclick="openInspectScreen()">
@@ -148,7 +155,7 @@
         <div class="sub-stats">
             <span class="stat-correct">✔ Doğru: <span id="insp-correct">0</span></span>
             <span class="stat-divider">|</span>
-            <span class="stat-wrong">❌ Yanlış: <span id="insp-wrong">0</span></span>
+            <span class="stat-wrong">✖ Yanlış: <span id="insp-wrong">0</span></span>
         </div>
     </div>
 
@@ -170,9 +177,10 @@
     let isClickable = true; 
     let historyData = {}; 
 
-    // Yanlışlara Çalış Modu
+    // Yanlışlara Çalış Modu Değişkenleri
     let isMistakeMode = false;
     let mistakeQueue = [];
+    let fixedMistakesThisSession = 0; 
 
     function showScreen(screenId) {
         document.getElementById('level-screen').classList.add('hidden');
@@ -233,7 +241,6 @@
         
         document.getElementById("question").innerText = `${currentLevel} x ${currentMultiplier}`;
         
-        // Mantıklı, kafa karıştırıcı sahte bir cevap üret
         let fakeAnswer = correctAnswer + (Math.random() > 0.5 ? currentLevel : -currentLevel);
         if(fakeAnswer <= 0 || fakeAnswer === correctAnswer) fakeAnswer = correctAnswer + 2;
 
@@ -261,6 +268,8 @@
 
             if (isMistakeMode) {
                 mistakeQueue = mistakeQueue.filter(m => m !== currentMultiplier);
+                fixedMistakesThisSession++; 
+                
                 if (mistakeQueue.length === 0) {
                     setTimeout(() => {
                         alert("Tebrikler! Tüm yanlışlarını öğrendin. 🎉");
@@ -274,7 +283,6 @@
             setTimeout(askQuestion, 1000); 
         } else {
             btn.classList.add("wrong");
-            // GÜNCELLEME: Artık doğru cevabı söylemiyor, sadece uyarıyor.
             document.getElementById("message").innerText = "Maalesef yanlış, tekrar dene!";
             document.getElementById("message").style.color = "#c0392b";
             wrongCount++; 
@@ -291,8 +299,15 @@
         document.getElementById('wrong-count').innerText = wrongCount;
     }
 
+    // GÜNCELLEME: Çıkış yaparken kalan yanlış sayısını da gösteriyor
     function endGame() {
-        showScreen('level-screen'); 
+        if (isMistakeMode) {
+            alert(`Tebrikler! ${fixedMistakesThisSession} tane yanlış düzelttiniz.\nKalan düzeltilmesi gereken yanlış sayısı: ${mistakeQueue.length}`);
+            isMistakeMode = false;
+            openInspectScreen(); 
+        } else {
+            showScreen('level-screen'); 
+        }
     }
 
     function openInspectScreen() {
@@ -309,6 +324,11 @@
         const listDiv = document.getElementById('table-list');
         listDiv.innerHTML = "";
 
+        let col1 = document.createElement('div');
+        col1.className = "table-column";
+        let col2 = document.createElement('div');
+        col2.className = "table-column";
+
         for(let i = 1; i <= 10; i++) {
             let div = document.createElement('div');
             div.className = "table-row";
@@ -320,15 +340,23 @@
                 statusHTML = "✔ ";
                 rowClass = "row-correct";
             } else if (historyData[i] === 'wrong') {
-                statusHTML = "❌ ";
+                statusHTML = "✖ ";
                 rowClass = "row-wrong";
             } else {
                 statusHTML = "<span style='opacity:0;'>✔ </span>"; 
             }
 
             div.innerHTML = `<span class="${rowClass}">${statusHTML} ${currentLevel} x ${i} = ${currentLevel * i}</span>`;
-            listDiv.appendChild(div);
+            
+            if (i <= 5) {
+                col1.appendChild(div);
+            } else {
+                col2.appendChild(div);
+            }
         }
+        
+        listDiv.appendChild(col1);
+        listDiv.appendChild(col2);
     }
 
     function closeInspectScreen() {
@@ -348,6 +376,7 @@
             return;
         }
 
+        fixedMistakesThisSession = 0; 
         isMistakeMode = true;
         showScreen('game-screen');
         askQuestion();
