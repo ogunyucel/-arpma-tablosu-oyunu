@@ -3,106 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çarpma Ustası</title>
+    <title>Çarpma Ustası - Pro Sürüm</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
         body { 
             display: flex; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%); 
+            height: 100vh; margin: 0; 
+            /* Arka plan senin istediğin o ferah ilk haline geri döndürüldü */
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%); 
         }
+        
         .container { 
             background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 400px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 90%; max-width: 420px; 
+            position: relative; 
         }
-        h1 { color: #333; margin-bottom: 20px; }
+
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 38px; }
+        p { color: #34495e; font-size: 22px; font-weight: 600; margin-bottom: 25px; }
         
-        /* Buton Stilleri */
-        button { 
-            padding: 12px 25px; font-size: 18px; font-weight: bold; border: none; 
-            border-radius: 10px; cursor: pointer; transition: 0.3s; margin: 10px;
+        /* Yuvarlak Kapatma Butonu */
+        .btn-close {
+            position: absolute; top: 15px; right: 15px; width: 35px; height: 35px;
+            background-color: #ff4d4d; color: white; border: none; border-radius: 50%;
+            cursor: pointer; font-size: 20px; font-weight: bold; display: flex;
+            align-items: center; justify-content: center; transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); padding: 0; line-height: 1; z-index: 100; 
         }
-        .btn-primary { background-color: #4CAF50; color: white; width: 100%; font-size: 22px; padding: 15px;}
-        .btn-primary:hover { background-color: #45a049; transform: scale(1.05); }
+        .btn-close:hover { background-color: #ff0000; transform: scale(1.1); }
         
-        .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .btn-level { background-color: #3498db; color: white; padding: 15px 0; font-size: 20px; }
-        .btn-level:hover { background-color: #2980b9; transform: translateY(-3px); }
-        
-        .options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .btn-option { background-color: #f1f1f1; color: #333; border: 2px solid #ddd; width: 120px; height: 60px; font-size: 24px;}
-        .btn-option:hover { background-color: #e2e2e2; }
-        
-        /* Doğru/Yanlış Efektleri */
-        .correct { background-color: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; }
-        .wrong { background-color: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
+        /* Seviye Grid Yapısı */
+        .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;}
+        .btn-level { 
+            background-color: #3498db; color: white; padding: 15px 0; font-size: 26px; 
+            border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        .btn-level:hover { background-color: #2980b9; transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.15);}
         
         .hidden { display: none !important; }
 
-        /* Skor Tabelası Tasarımı */
-        #score-board { margin-bottom: 20px; background: #f8f9fa; padding: 10px; border-radius: 10px; }
-        .main-stats { font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 8px; }
-        .sub-stats { font-size: 16px; font-weight: bold; }
-        .text-correct { color: #27ae60; }
-        .text-wrong { color: #c0392b; }
+        /* SKOR TABLOSU */
+        #score-board { 
+            margin-bottom: 20px; margin-top: 35px; background: #f8f9fa; padding: 15px; 
+            padding-right: 50px; border-radius: 15px; display: flex; flex-direction: column;
+            gap: 8px; position: relative; 
+        }
+        
+        .main-stats { font-size: 18px; font-weight: bold; color: #2c3e50; }
+        .sub-stats { font-size: 15px; font-weight: bold; display: flex; justify-content: center; gap: 8px; align-items: center;}
+        
+        .stat-correct { color: #27ae60; }
+        .stat-wrong { color: #e74c3c; }
+        .stat-divider { color: #bdc3c7; }
 
-        #question { font-size: 40px; font-weight: bold; color: #2c3e50; margin: 20px 0; }
-        #message { height: 24px; font-weight: bold; margin-top: 15px; color: #555; }
+        /* İNCELE BUTONU */
+        .btn-inspect {
+            position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; font-size: 12px; font-weight: bold; color: #2c3e50; transition: 0.2s; padding: 0;
+        }
+        .btn-inspect span { font-size: 24px; margin-bottom: 2px; }
+        .btn-inspect:hover { color: #3498db; transform: translateY(-50%) scale(1.1); }
+
+        /* İNCELEME EKRANI TABLOSU */
+        .table-list {
+            text-align: left; margin-top: 15px; padding: 15px; background: #f8f9fa;
+            border-radius: 15px; height: 300px; overflow-y: auto; border: 2px solid #ecf0f1;
+        }
+        .table-row { font-size: 22px; font-weight: bold; margin: 8px 0; padding-bottom: 5px; border-bottom: 1px dashed #ddd; }
+        .row-correct { color: #27ae60; }
+        .row-wrong { color: #e74c3c; }
+        .row-unanswered { color: #7f8c8d; }
+
+        /* YANLIŞLARA ÇALIŞ BUTONU */
+        .btn-mistakes {
+            background-color: #e67e22; color: white; padding: 15px; font-size: 20px;
+            border: none; border-radius: 10px; cursor: pointer; font-weight: bold;
+            width: 100%; margin-top: 15px; transition: 0.3s;
+        }
+        .btn-mistakes:hover { background-color: #d35400; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); }
+
+        /* SORU (Örn: 6 x 8) */
+        #question { font-size: 55px; font-weight: 900; color: #2c3e50; margin: 25px 0; letter-spacing: 2px; }
+
+        /* CEVAP ŞIKLARI */
+        .options { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .btn-option { 
+            background-color: #f1f2f6; color: #2c3e50; border: 3px solid #ced4da; 
+            width: 130px; height: 80px; font-size: 32px; font-weight: bold; border-radius: 15px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-option:hover { background-color: #e2e6ea; transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        
+        .correct { background-color: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; transform: scale(1.05); }
+        .wrong { background-color: #e74c3c !important; color: white !important; border-color: #c0392b !important; transform: scale(0.95); }
+
+        #message { height: 30px; font-weight: bold; margin-top: 20px; font-size: 20px; transition: 0.3s; }
     </style>
 </head>
 <body>
 
-<div id="start-screen" class="container">
+<!-- 1. SEVİYE EKRANI -->
+<div id="level-screen" class="container">
     <h1>🚀 Çarpma Ustası</h1>
-    <p>Matematik becerilerini test etmeye hazır mısın?</p>
-    <button class="btn-primary" onclick="showScreen('level-screen')">Oyuna Başla</button>
-</div>
-
-<div id="level-screen" class="container hidden">
-    <h1>Seviye Seç</h1>
-    <p>Hangi çarpım tablosuyla oynamak istersin?</p>
+    <p>Seviyeni seç ve oyuna başla!</p>
     <div class="level-grid" id="levels"></div>
-    <button style="margin-top: 20px; background: #95a5a6; color: white; width: 100%;" onclick="showScreen('start-screen')">Geri Dön</button>
 </div>
 
+<!-- 2. OYUN EKRANI -->
 <div id="game-screen" class="container hidden">
+    <button class="btn-close" onclick="endGame()">×</button>
     
     <div id="score-board">
-        <div class="main-stats">Skor: <span id="score">0</span> | Seviye: <span id="current-level-text">1</span>'ler</div>
+        <div class="main-stats">Skor: <span id="score">0</span> | Seviye: <span id="level-display">6</span><span id="level-suffix">'lar</span></div>
         <div class="sub-stats">
-            <span class="text-correct">✔️ Doğru: <span id="correct-count">0</span></span> | 
-            <span class="text-wrong">❌ Yanlış: <span id="wrong-count">0</span></span>
+            <span class="stat-correct">✔ Doğru: <span id="correct-count">0</span></span>
+            <span class="stat-divider">|</span>
+            <span class="stat-wrong">❌ Yanlış: <span id="wrong-count">0</span></span>
         </div>
+        
+        <button class="btn-inspect" onclick="openInspectScreen()">
+            <span>🔍</span>
+            İncele
+        </button>
     </div>
 
     <h1 id="question">-- x --</h1>
+    
     <div class="options">
         <button id="opt1" class="btn-option" onclick="checkAnswer(this)"></button>
         <button id="opt2" class="btn-option" onclick="checkAnswer(this)"></button>
     </div>
+    
     <p id="message"></p>
-    <button style="margin-top: 20px; background: #e67e22; color: white; width: 100%;" onclick="endGame()">Oyunu Bitir</button>
+</div>
+
+<!-- 3. İNCELEME (KARNE) EKRANI -->
+<div id="inspect-screen" class="container hidden">
+    <button class="btn-close" onclick="closeInspectScreen()">×</button>
+    
+    <div id="score-board" style="padding-right: 15px;">
+        <div class="main-stats">Skor: <span id="insp-score">0</span></div>
+        <div class="sub-stats">
+            <span class="stat-correct">✔ Doğru: <span id="insp-correct">0</span></span>
+            <span class="stat-divider">|</span>
+            <span class="stat-wrong">❌ Yanlış: <span id="insp-wrong">0</span></span>
+        </div>
+    </div>
+
+    <h2 style="color: #2c3e50; margin: 10px 0;"><span id="insp-level-title">6</span><span id="insp-level-suffix">'lar</span> Çarpım Tablosu</h2>
+    
+    <div id="table-list" class="table-list"></div>
+
+    <button class="btn-mistakes" onclick="startMistakeMode()">Sadece Yanlışlara Çalış</button>
 </div>
 
 <script>
-    // --- OYUN DEĞİŞKENLERİ ---
     let currentLevel = 1; 
+    let currentMultiplier = 1;
     let correctAnswer = 0;
+    
     let score = 0;
-    let correctCount = 0; // Doğru sayacı
-    let wrongCount = 0;   // Yanlış sayacı
+    let correctCount = 0; 
+    let wrongCount = 0;   
     let isClickable = true; 
+    let historyData = {}; 
 
-    // --- EKRAN GEÇİŞ MANTIĞI ---
+    // Yanlışlara Çalış Modu
+    let isMistakeMode = false;
+    let mistakeQueue = [];
+
     function showScreen(screenId) {
-        document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('level-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('inspect-screen').classList.add('hidden');
         document.getElementById(screenId).classList.remove('hidden');
     }
 
-    // --- SEVİYE BUTONLARINI OLUŞTURMA ---
     function generateLevelButtons() {
         const levelsDiv = document.getElementById('levels');
+        levelsDiv.innerHTML = ""; 
         for (let i = 1; i <= 9; i++) {
             let btn = document.createElement('button');
             btn.innerText = i;
@@ -111,22 +192,27 @@
             levelsDiv.appendChild(btn);
         }
     }
-    generateLevelButtons(); 
+    window.onload = generateLevelButtons;
 
-    // --- OYUNU BAŞLATMA ---
     function startLevel(level) {
         currentLevel = level;
-        score = 0;
-        correctCount = 0; // Yeni seviyede doğruları sıfırla
-        wrongCount = 0;   // Yeni seviyede yanlışları sıfırla
+        document.getElementById('level-display').innerText = level;
         
+        let suffix = [1, 2, 3, 4, 5, 7, 8].includes(level) ? "'ler" : "'lar";
+        document.getElementById('level-suffix').innerText = suffix;
+
+        score = 0;
+        correctCount = 0; 
+        wrongCount = 0;   
+        historyData = {};
+        isMistakeMode = false;
+        mistakeQueue = [];
+
         updateScore();
-        document.getElementById('current-level-text').innerText = level;
         showScreen('game-screen');
         askQuestion();
     }
 
-    // --- SORU ÜRETME ---
     function askQuestion() {
         isClickable = true;
         document.getElementById("message").innerText = "";
@@ -136,11 +222,18 @@
         btn1.className = "btn-option"; 
         btn2.className = "btn-option";
 
-        const randomNum = Math.floor(Math.random() * 10) + 1;
-        correctAnswer = currentLevel * randomNum;
+        if (isMistakeMode) {
+            const randomIndex = Math.floor(Math.random() * mistakeQueue.length);
+            currentMultiplier = mistakeQueue[randomIndex];
+        } else {
+            currentMultiplier = Math.floor(Math.random() * 10) + 1;
+        }
+
+        correctAnswer = currentLevel * currentMultiplier;
         
-        document.getElementById("question").innerText = `${currentLevel} x ${randomNum}`;
+        document.getElementById("question").innerText = `${currentLevel} x ${currentMultiplier}`;
         
+        // Mantıklı, kafa karıştırıcı sahte bir cevap üret
         let fakeAnswer = correctAnswer + (Math.random() > 0.5 ? currentLevel : -currentLevel);
         if(fakeAnswer <= 0 || fakeAnswer === correctAnswer) fakeAnswer = correctAnswer + 2;
 
@@ -153,30 +246,45 @@
         }
     }
 
-    // --- CEVAP KONTROLÜ ---
     function checkAnswer(btn) {
         if (!isClickable) return; 
         isClickable = false;
 
         if (parseInt(btn.innerText) === correctAnswer) {
             btn.classList.add("correct");
-            document.getElementById("message").innerText = "Harika! 🎉";
+            document.getElementById("message").innerText = "Doğru Nokta Atışı! 🎉";
             document.getElementById("message").style.color = "#27ae60";
             score += 10;
-            correctCount++; // Doğruyu 1 artır
+            correctCount++; 
             updateScore();
+            historyData[currentMultiplier] = 'correct';
+
+            if (isMistakeMode) {
+                mistakeQueue = mistakeQueue.filter(m => m !== currentMultiplier);
+                if (mistakeQueue.length === 0) {
+                    setTimeout(() => {
+                        alert("Tebrikler! Tüm yanlışlarını öğrendin. 🎉");
+                        isMistakeMode = false;
+                        askQuestion();
+                        openInspectScreen();
+                    }, 1000);
+                    return;
+                }
+            }
             setTimeout(askQuestion, 1000); 
         } else {
             btn.classList.add("wrong");
-            document.getElementById("message").innerText = "Eyvah! Doğrusu " + correctAnswer + " olacaktı.";
+            // GÜNCELLEME: Artık doğru cevabı söylemiyor, sadece uyarıyor.
+            document.getElementById("message").innerText = "Maalesef yanlış, tekrar dene!";
             document.getElementById("message").style.color = "#c0392b";
-            wrongCount++; // Yanlışı 1 artır
+            wrongCount++; 
             updateScore();
+            historyData[currentMultiplier] = 'wrong';
+
             setTimeout(askQuestion, 1500); 
         }
     }
 
-    // --- SKOR GÜNCELLEME VE ÇIKIŞ ---
     function updateScore() {
         document.getElementById('score').innerText = score;
         document.getElementById('correct-count').innerText = correctCount;
@@ -184,11 +292,66 @@
     }
 
     function endGame() {
-        // Oyun bitince çıkan sonuç ekranı
-        alert("Oyun bitti!\n\nToplam Skorun: " + score + "\nDoğru Sayısı: " + correctCount + "\nYanlış Sayısı: " + wrongCount);
         showScreen('level-screen'); 
     }
 
+    function openInspectScreen() {
+        showScreen('inspect-screen');
+        
+        document.getElementById('insp-score').innerText = score;
+        document.getElementById('insp-correct').innerText = correctCount;
+        document.getElementById('insp-wrong').innerText = wrongCount;
+        document.getElementById('insp-level-title').innerText = currentLevel;
+        
+        let suffix = [1, 2, 3, 4, 5, 7, 8].includes(currentLevel) ? "'ler" : "'lar";
+        document.getElementById('insp-level-suffix').innerText = suffix;
+
+        const listDiv = document.getElementById('table-list');
+        listDiv.innerHTML = "";
+
+        for(let i = 1; i <= 10; i++) {
+            let div = document.createElement('div');
+            div.className = "table-row";
+            
+            let statusHTML = "";
+            let rowClass = "row-unanswered";
+
+            if (historyData[i] === 'correct') {
+                statusHTML = "✔ ";
+                rowClass = "row-correct";
+            } else if (historyData[i] === 'wrong') {
+                statusHTML = "❌ ";
+                rowClass = "row-wrong";
+            } else {
+                statusHTML = "<span style='opacity:0;'>✔ </span>"; 
+            }
+
+            div.innerHTML = `<span class="${rowClass}">${statusHTML} ${currentLevel} x ${i} = ${currentLevel * i}</span>`;
+            listDiv.appendChild(div);
+        }
+    }
+
+    function closeInspectScreen() {
+        showScreen('game-screen');
+    }
+
+    function startMistakeMode() {
+        mistakeQueue = [];
+        for (let i = 1; i <= 10; i++) {
+            if (historyData[i] === 'wrong') {
+                mistakeQueue.push(i);
+            }
+        }
+
+        if (mistakeQueue.length === 0) {
+            alert("Harika! Hiç yanlışınız yok.");
+            return;
+        }
+
+        isMistakeMode = true;
+        showScreen('game-screen');
+        askQuestion();
+    }
 </script>
 </body>
 </html>
